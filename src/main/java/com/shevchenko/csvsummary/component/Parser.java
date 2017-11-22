@@ -11,4 +11,6 @@ public interface Parser {
     String parseHeaders(File file) throws IOException;
 
     Double summarize(File file, String header) throws IOException;
+
+    boolean isValid(File file) throws IOException;
 }
