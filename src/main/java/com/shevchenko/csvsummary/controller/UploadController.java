@@ -50,11 +50,6 @@ public class UploadController {
         this.parser = parser;
     }
 
-    @GetMapping
-    public String index() {
-        return "index";
-    }
-
     @PostMapping("/upload")
     public String singleFileUpload(@RequestParam MultipartFile file,
                                    RedirectAttributes redirectAttributes, HttpServletResponse response) {
