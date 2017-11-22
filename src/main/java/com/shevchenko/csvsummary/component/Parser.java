@@ -22,4 +22,12 @@ public class Parser {
             return parser.getHeaderMap().keySet().stream().collect(Collectors.joining(", "));
         }
     }
+
+    public Double summarize(File file, String header) throws IOException {
+        try (FileReader fileReader = new FileReader(file)) {
+            CSVFormat format = CSVFormat.DEFAULT.withHeader();
+            CSVParser parser = new CSVParser(fileReader, format);
+            return parser.getRecords().stream().mapToDouble(csvRecord -> Double.parseDouble(csvRecord.get(header))).sum();
+        }
+    }
 }
