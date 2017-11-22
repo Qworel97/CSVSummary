@@ -23,8 +23,8 @@ public class CacheImpl implements Cache {
 
     private ScheduledExecutorService executor;
 
-    private static final long EVICTION_PERIOD = 1200L;
-    private static final long JOB_PERIOD = 100L;
+    private static final long EVICTION_PERIOD = 1000L;
+    private static final long JOB_PERIOD = 10L;
 
     @PostConstruct
     public void setUp() {
@@ -64,12 +64,14 @@ public class CacheImpl implements Cache {
     private void timeClean() {
         map.entrySet().forEach(entry -> {
             if (System.currentTimeMillis() - entry.getValue() >
-                    TimeUnit.SECONDS.convert(EVICTION_PERIOD, TimeUnit.MILLISECONDS)) {
+                    TimeUnit.MILLISECONDS.convert(EVICTION_PERIOD, TimeUnit.SECONDS)) {
                 toRemove.add(entry.getKey());
             }
         });
         for (File file : toRemove) {
             file.delete();
+            map.remove(file);
         }
+        toRemove.clear();
     }
 }
