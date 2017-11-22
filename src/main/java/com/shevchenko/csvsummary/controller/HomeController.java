@@ -4,6 +4,8 @@ import com.shevchenko.csvsummary.component.Cache;
 import com.shevchenko.csvsummary.component.Parser;
 import com.shevchenko.csvsummary.entity.Messages;
 import com.shevchenko.csvsummary.entity.ModelAttributeNames;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -21,6 +23,8 @@ import java.nio.file.Paths;
  */
 @Controller
 public class HomeController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HomeController.class);
 
     private static final String TOKEN = "SFN_TOKEN";
 
@@ -43,12 +47,15 @@ public class HomeController {
                 File file;
                 try {
                     file = cache.get(token);
+                    LOGGER.debug("File was loaded from cache -> {}", file.getName());
                 } catch (FileNotFoundException e) {
                     file = Paths.get(uploadFolder + token).toFile();
+                    LOGGER.debug("File was loaded from filesystem -> {}", file.getName());
                     if (file.exists()) {
                         cache.put(file);
                     } else {
                         model.addAttribute(ModelAttributeNames.ERROR.getName(), Messages.FILE_WAS_NOT_FOUND.getText());
+                        LOGGER.debug("File was not found in system and cache -> {}", file.getName());
                     }
                 }
                 if (file.exists()) {

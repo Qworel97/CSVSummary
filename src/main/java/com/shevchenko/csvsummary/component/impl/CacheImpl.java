@@ -1,6 +1,8 @@
 package com.shevchenko.csvsummary.component.impl;
 
 import com.shevchenko.csvsummary.component.Cache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -17,6 +19,8 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 public class CacheImpl implements Cache {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CacheImpl.class);
 
     private Map<File, Long> map;
     private List<File> toRemove;
@@ -36,16 +40,19 @@ public class CacheImpl implements Cache {
             return thread;
         });
         executor.scheduleAtFixedRate(() -> this.timeClean(), JOB_PERIOD, JOB_PERIOD, TimeUnit.SECONDS);
+        LOGGER.info("Cache was setup");
     }
 
     @PreDestroy
     public void finalize() {
         map.keySet().forEach(file -> file.delete());
+        LOGGER.info("Cache was cleared");
     }
 
     @Override
     public void put(File file) {
         map.put(file, System.currentTimeMillis());
+        LOGGER.debug("File was put to cache -> {}", file.getName());
     }
 
     @Override
@@ -58,6 +65,7 @@ public class CacheImpl implements Cache {
     public boolean extend(String name) {
         Optional<File> expectedFile = map.keySet().stream().filter(file -> name.equals(file.getName())).findFirst();
         expectedFile.ifPresent(file -> map.put(file, System.currentTimeMillis()));
+        expectedFile.ifPresent(file -> LOGGER.debug("File was extended -> {}", file.getName()));
         return expectedFile.isPresent();
     }
 
@@ -71,6 +79,7 @@ public class CacheImpl implements Cache {
         for (File file : toRemove) {
             file.delete();
             map.remove(file);
+            LOGGER.debug("File was deleted -> {}", file.getName());
         }
         toRemove.clear();
     }
