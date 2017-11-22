@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-
+<div>
 <h1>CSVSummary</h1>
-
+</div>
+<div th:if="${error != null}" th:text="${error}"/>
+<div th:if="${message != null}" th:text="${message}"/>
+<div>
 <form method="POST" action="/upload" enctype="multipart/form-data">
     <input type="file" name="file" accept=".csv"/><br/><br/>
     <input type="submit" value="Submit" />
 </form>
+</div>
 
+<div th:if="${headers != null}" th:text="${headers}"/>
 </body>
 </html>
