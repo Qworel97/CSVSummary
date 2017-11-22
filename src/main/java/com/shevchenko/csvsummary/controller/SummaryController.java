@@ -1,5 +1,6 @@
 package com.shevchenko.csvsummary.controller;
 
+import com.shevchenko.csvsummary.component.Cache;
 import com.shevchenko.csvsummary.component.Parser;
 import com.shevchenko.csvsummary.entity.Messages;
 import com.shevchenko.csvsummary.entity.ModelAttributeNames;
@@ -27,21 +28,23 @@ public class SummaryController {
     private static final int MAX_AGE = 1000;
 
     private Parser parser;
+    private Cache cache;
 
     @Value("${temporary.folder}")
     private String uploadFolder;
 
     @Autowired
-    public SummaryController(Parser parser) {
+    public SummaryController(Parser parser, Cache cache) {
         this.parser = parser;
+        this.cache = cache;
     }
 
     @PostMapping("/summarize")
     public String getSummary(@CookieValue(name = TOKEN, defaultValue = "") String token, @RequestParam String header,
                              RedirectAttributes redirectAttributes, HttpServletResponse response) {
         if (!token.isEmpty()) {
-            File file = Paths.get(uploadFolder + token).toFile();
             try {
+                File file = cache.get(token);
                 redirectAttributes.addFlashAttribute(ModelAttributeNames.SUMMARY.getName(), parser.summarize(file, header));
                 response.addCookie(CookieUtils.generateCookie(TOKEN, token, MAX_AGE));
             } catch (IOException e) {

@@ -1,5 +1,6 @@
 package com.shevchenko.csvsummary.controller;
 
+import com.shevchenko.csvsummary.component.Cache;
 import com.shevchenko.csvsummary.component.Parser;
 import com.shevchenko.csvsummary.entity.Messages;
 import com.shevchenko.csvsummary.entity.ModelAttributeNames;
@@ -30,13 +31,15 @@ public class UploadController {
     private static final int MAX_AGE = 1000;
 
     private Parser parser;
+    private Cache cache;
 
     @Value("${temporary.folder}")
     private String uploadFolder;
 
     @Autowired
-    public UploadController(Parser parser) {
+    public UploadController(Parser parser, Cache cache) {
         this.parser = parser;
+        this.cache = cache;
     }
 
     @PostMapping("/upload")
@@ -49,7 +52,7 @@ public class UploadController {
             byte[] bytes = file.getBytes();
             String systemFileName = NameUtils.generateUniqueFileName(file.getOriginalFilename());
             Path path = Paths.get(uploadFolder + systemFileName);
-            Files.write(path, bytes);
+            cache.put(Files.write(path, bytes).toFile());
             redirectAttributes.addFlashAttribute(ModelAttributeNames.MESSAGE.getName(), Messages.SUCCESSFULLY_UPLOADED_FILE.getText());
             response.addCookie(CookieUtils.generateCookie(TOKEN, systemFileName, MAX_AGE));
         } catch (FileNotFoundException e) {
