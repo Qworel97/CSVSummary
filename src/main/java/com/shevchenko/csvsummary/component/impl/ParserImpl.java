@@ -43,16 +43,18 @@ public class ParserImpl implements Parser {
         }
     }
 
+    @Override
     public boolean isValid(File file) throws IOException {
         try (FileReader fileReader = new FileReader(file)) {
             CSVFormat format = CSVFormat.DEFAULT.withHeader();
             try {
                 CSVParser parser = new CSVParser(fileReader, format);
-                boolean result = parser.getRecords().stream().allMatch(csvRecord -> csvRecord.toMap().values().stream().allMatch(value -> NumberUtils.isNumber(value)));
-                LOGGER.debug("File is valid -> {} ", file.getName());
+                boolean result = parser.getRecords().stream()
+                        .allMatch(csvRecord -> csvRecord.toMap().values().stream().allMatch(value -> NumberUtils.isNumber(value)));
+                LOGGER.debug("Validation result for file -> {} is {} ", file.getName(), result);
                 return result;
             } catch (IllegalArgumentException e) {
-                LOGGER.debug("File is not valid -> {} ", file.getName());
+                LOGGER.debug("Validation result for file -> {} is {} ", file.getName(), false);
                 return false;
             }
         }

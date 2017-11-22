@@ -57,8 +57,10 @@ public class CacheImpl implements Cache {
 
     @Override
     public File get(String name) throws FileNotFoundException {
-        extend(name);
-        return map.keySet().stream().filter(file -> name.equals(file.getName())).findFirst().orElseThrow(() -> new FileNotFoundException());
+        if (!extend(name)){
+            throw new FileNotFoundException("File was already removed from cache");
+        }
+        return map.keySet().stream().filter(file -> name.equals(file.getName())).findFirst().get();
     }
 
     @Override
