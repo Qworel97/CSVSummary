@@ -1,6 +1,7 @@
 package com.shevchenko.csvsummary.controller;
 
 import com.shevchenko.csvsummary.component.Parser;
+import com.shevchenko.csvsummary.component.impl.ParserImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -28,6 +29,7 @@ public class SummaryController {
     private static final String SUMMARY_MODEL_ATTRIBUTE_NAME = "summary";
 
     private static final String ERROR_WHILE_PARSING = "Error while uploading";
+
     private Parser parser;
 
     @Autowired
@@ -44,6 +46,6 @@ public class SummaryController {
         } catch (IOException e) {
             redirectAttributes.addFlashAttribute(ERROR_MODEL_ATTRIBUTE_NAME, ERROR_WHILE_PARSING);
         }
-        return "redirect:/index";
+        return "redirect:/";
     }
 }
