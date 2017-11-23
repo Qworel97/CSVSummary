@@ -52,26 +52,27 @@ public class UploadController {
         if (file.isEmpty()) {
             redirectAttributes.addFlashAttribute(ModelAttributeNames.ERROR.getName(), Messages.NO_FILE_SELECTED_ERROR.getText());
             LOGGER.debug("No file");
-        }
-        try {
-            byte[] bytes = file.getBytes();
-            String systemFileName = NameUtils.generateUniqueFileName(file.getOriginalFilename());
-            Path path = Paths.get(uploadFolder + systemFileName);
-            File tempFile = Files.write(path, bytes).toFile();
-            if (parser.isValid(tempFile)) {
-                cache.put(tempFile);
-                LOGGER.debug("File was saved -> {}", systemFileName);
-                redirectAttributes.addFlashAttribute(ModelAttributeNames.MESSAGE.getName(), Messages.SUCCESSFULLY_UPLOADED_FILE.getText());
-                response.addCookie(CookieUtils.generateCookie(TOKEN, systemFileName, MAX_AGE));
-                LOGGER.debug("Cookie was set for -> {}", systemFileName);
-            } else {
-                tempFile.delete();
-                redirectAttributes.addFlashAttribute(ModelAttributeNames.ERROR.getName(), Messages.WRONG_FILE_DATA.getText());
-                LOGGER.debug("Wrong data -> {}", systemFileName);
+        } else {
+            try {
+                byte[] bytes = file.getBytes();
+                String systemFileName = NameUtils.generateUniqueFileName(file.getOriginalFilename());
+                Path path = Paths.get(uploadFolder + systemFileName);
+                File tempFile = Files.write(path, bytes).toFile();
+                if (parser.isValid(tempFile)) {
+                    cache.put(tempFile);
+                    LOGGER.debug("File was saved -> {}", systemFileName);
+                    redirectAttributes.addFlashAttribute(ModelAttributeNames.MESSAGE.getName(), Messages.SUCCESSFULLY_UPLOADED_FILE.getText());
+                    response.addCookie(CookieUtils.generateCookie(TOKEN, systemFileName, MAX_AGE));
+                    LOGGER.debug("Cookie was set for -> {}", systemFileName);
+                } else {
+                    tempFile.delete();
+                    redirectAttributes.addFlashAttribute(ModelAttributeNames.ERROR.getName(), Messages.WRONG_FILE_DATA.getText());
+                    LOGGER.debug("Wrong data -> {}", systemFileName);
+                }
+            } catch (IOException e) {
+                redirectAttributes.addFlashAttribute(ModelAttributeNames.ERROR.getName(), Messages.ERROR_WHILE_UPLOADING.getText());
+                LOGGER.debug("Error while uploading");
             }
-        } catch (IOException e) {
-            redirectAttributes.addFlashAttribute(ModelAttributeNames.ERROR.getName(), Messages.ERROR_WHILE_UPLOADING.getText());
-            LOGGER.debug("Error while uploading");
         }
 
         return "redirect:/";
