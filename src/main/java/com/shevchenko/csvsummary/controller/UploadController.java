@@ -65,6 +65,7 @@ public class UploadController {
                 response.addCookie(CookieUtils.generateCookie(TOKEN, systemFileName, MAX_AGE));
                 LOGGER.debug("Cookie was set for -> {}", systemFileName);
             } else {
+                tempFile.delete();
                 redirectAttributes.addFlashAttribute(ModelAttributeNames.ERROR.getName(), Messages.WRONG_FILE_DATA.getText());
                 LOGGER.debug("Wrong data -> {}", systemFileName);
             }
