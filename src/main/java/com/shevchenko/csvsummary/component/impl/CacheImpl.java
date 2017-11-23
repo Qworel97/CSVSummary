@@ -22,19 +22,17 @@ public class CacheImpl implements Cache {
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheImpl.class);
 
     private Map<File, Long> map;
-    private List<File> toRemove;
 
     private static final long EVICTION_PERIOD = 1000L;
 
     @PostConstruct
     public void setUp() {
         this.map = Collections.synchronizedMap(new HashMap<>());
-        this.toRemove = Collections.synchronizedList(new ArrayList<>());
         LOGGER.info("Cache was setup");
     }
 
     @PreDestroy
-    public void finalize() {
+    public void tearDown() {
         map.keySet().forEach(file -> file.delete());
         LOGGER.info("Cache was cleared");
     }
@@ -66,14 +64,10 @@ public class CacheImpl implements Cache {
         map.entrySet().forEach(entry -> {
             if (System.currentTimeMillis() - entry.getValue() >
                     TimeUnit.MILLISECONDS.convert(EVICTION_PERIOD, TimeUnit.SECONDS)) {
-                toRemove.add(entry.getKey());
+                entry.getKey().delete();
+                LOGGER.debug("File was deleted -> {}", entry.getKey().getName());
+                map.remove(entry.getKey());
             }
         });
-        for (File file : toRemove) {
-            file.delete();
-            map.remove(file);
-            LOGGER.debug("File was deleted -> {}", file.getName());
-        }
-        toRemove.clear();
     }
 }
